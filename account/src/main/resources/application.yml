@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: bamboo-account
+  datasource:
+    publicKey: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIRbITon/N9DP8kro2BH4cHmXOB++QDY9792CNIvYvByASo7n2iQCRm1ll0+BCXt93+zqMewZdJqcql1Kri+D1UCAwEAAQ==
+    druid:
+      name: bamboo-account
+      db-type: mysql
+      url: jdbc:mysql://localhost:3306/account
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: root
+      password: dES8xkZb5QUT2LQwYeBkL7ZCkT6CeMioWVGTlADghF3yxAJ2WksYsnTNqjS7g2IGq4GZsp19jAS8rUgF6N+Xew==
+      initial-size: 1
+      min-idle: 1
+      max-active: 10
+      max-wait: 60000
+      use-unfair-lock: true
+      validation-query: SELECT 1 FROM DUAL
+      validation-query-timeout: 5
+      test-while-idle: true
+      test-on-return: false
+      test-on-borrow: false
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: 0
+      time-between-eviction-runs-millis: 60000
+      async-init: true
+      connection-properties: config.decrypt=true;config.decrypt.key=${spring.datasource.publicKey};password=${spring.datasource.druid.password}
+      filters: stat,config,wall
+      filter:
+        config:
+          enabled: true
+        stat:
+          db-type: mysql # 为空时从DataSource中获取
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 5000  # 默认3000
+          merge-sql: true
+
+server:
+  port: 8210
+
+eureka:
+#  instance:
+#    hostname: localhost
+#    lease-renewal-interval-in-seconds: 10
+#    lease-expiration-duration-in-seconds: 30
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 10
+    service-url:
+      defaultZone: http://localhost:8120/eureka
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
+    log-impl: org.apache.ibatis.logging.log4j.Log4jImpl
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: com.bamboo.account.model
+
+feign:
+  hystrix:
+    enabled: true
+
+ribbon:
+  ConnectTimeout: 1500
+  ReadTimeout: 2000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1

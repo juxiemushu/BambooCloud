@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: bamboo-order
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    platform: mysql
+    url: jdbc:mysql://localhost:3306/order?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    druid:
+      initial-size: 1
+      max-active: 20
+      min-idle: 1
+      max-wait: 60000
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      max-open-prepared-statements: 20
+      validation-query: SELECT 1 FROM DUAL
+      validation-query-timeout: 2000
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      filters: stat,wall,log4j # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000 # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      web-stat-filter: # 配置DruidStatFilter
+        enabled: true
+        url-pattern: "/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+      stat-view-servlet: # 配置DruidStatViewServlet
+        enabled: true
+        url-pattern: "/druid/*"
+        # IP白名单(没有配置或者为空，则允许所有访问)
+        allow: localhost,127.0.0.1,192.168.*
+        # IP黑名单 (存在共同时，deny优先于allow)
+        #deny: 192.168.1.100
+        reset-enable: false # 禁用HTML页面上的“Reset All”功能
+        login-username: admin # 登录名
+        login-password: 123456 # 登录密码
+
+server:
+  port: 8200
+
+eureka:
+#  instance:
+#    hostname: localhost
+#    lease-renewal-interval-in-seconds: 10
+#    lease-expiration-duration-in-seconds: 30
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    registry-fetch-interval-seconds: 10
+    service-url:
+      defaultZone: http://localhost:8120/eureka
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    auto-mapping-behavior: full
+    log-impl: org.apache.ibatis.logging.log4j.Log4jImpl
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: com.bamboo.account.model
+
+feign:
+  hystrix:
+    enabled: true
+
+ribbon:
+  ConnectTimeout: 1500
+  ReadTimeout: 2000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1

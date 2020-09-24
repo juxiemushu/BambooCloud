@@ -1,0 +1,2 @@
+world = com.bamboo.common.spi.HelloWorldServiceImpl
+cat = com.bamboo.common.spi.HelloCatServiceImpl

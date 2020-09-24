@@ -1,0 +1,2 @@
+com.bamboo.common.extension.strategy.ServiceLoadingStrategy
+com.bamboo.common.extension.strategy.DefaultLoadingStrategy

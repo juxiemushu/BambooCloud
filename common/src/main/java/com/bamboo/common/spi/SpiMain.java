@@ -17,6 +17,11 @@ public class SpiMain {
 
         HelloService catHelloService = extensionLoader.getExtension("cat");
         catHelloService.sayHello("cat");
+
+        System.out.println("--------------------*****************--------------------");
+
+        HelloService defaultHelloService = extensionLoader.getExtension("true");
+        defaultHelloService.sayHello("default");
     }
 
 }

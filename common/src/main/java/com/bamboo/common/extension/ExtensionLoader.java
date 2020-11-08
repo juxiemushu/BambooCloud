@@ -1,5 +1,7 @@
 package com.bamboo.common.extension;
 
+import com.bamboo.common.extension.annotation.SPI;
+import com.bamboo.common.extension.annotation.SPIInstance;
 import com.bamboo.common.extension.strategy.LoadingStrategy;
 import com.bamboo.common.lang.Holder;
 import com.bamboo.common.utils.ClassUtils;
@@ -30,15 +32,36 @@ public class ExtensionLoader<T> {
 
     private static final String LOG_PREFIX = ExtensionLoader.class.getSimpleName();
 
+    /**
+     * 普通扩展类缓存，不包括 Wrapper 扩展类和 Adaptive 扩展类
+     * 扩展名与扩展类缓存
+     */
     private final Holder<Map<String, Class<?>>> cachedClassesHolder = new Holder<>();
 
+    /**
+     * Wrapper 类缓存
+     */
+    private Set<Class<?>> cachedWrapperClasses;
+
+    /**
+     * 自适应扩展类，一个扩展点最多只能有一个自适应扩展类
+     */
+    private volatile Class<?> cachedAdaptiveClass = null;
+
+    /**
+     *
+     */
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<>();
 
     /**
+     * 扩展实现类对应的 ExtensionLoader 的本地缓存
      * 利用 ExtensionLoader 加载扩展实现类时，会创建一个 ExtensionLoader；为避免每次都创建新的 ExtensionLoader，将其本地缓存
      */
     private static final ConcurrentHashMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<>(16);
 
+    /**
+     * 扩展实现类的实例本地缓存
+     */
     private static final ConcurrentMap<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<>(64);
 
     /**
@@ -46,9 +69,15 @@ public class ExtensionLoader<T> {
      */
     private final Class<?> extensionInterfaceClass;
 
+    /**
+     * 默认扩展实现类别名，@SPI注解中的value属性值
+     * {@link ExtensionLoader#cacheDefaultExtensionName}
+     */
     private String cachedDefaultName;
 
-    // 所有加载策略的实现
+    /**
+     * 获取所有加载策略的实现
+     */
     private static volatile LoadingStrategy[] loadingStrategies = loadLoadingStrategies();
 
     private ExtensionLoader(Class<?> extensionInterfaceClass) {
@@ -353,16 +382,16 @@ public class ExtensionLoader<T> {
     }
 
     /**
-     * 获取 @SPI 注解修饰的可扩展服务接口名，并设置到缓存中；默认为空；
+     * 获取 @SPI 注解修饰的可扩展服务接口名，并设置到缓存中,默认为空；
      */
     private void cacheDefaultExtensionName() {
         // 获取扩展服务接口上的 @SPI 注解，获取注解中的 value 属性，作为 cachedDefaultName
-        SPI defaultAnnotation = extensionInterfaceClass.getAnnotation(SPI.class);
-        if(defaultAnnotation == null) {
+        SPI interfaceAnnotation = extensionInterfaceClass.getAnnotation(SPI.class);
+        if(interfaceAnnotation == null) {
             return;
         }
 
-        String value = defaultAnnotation.value();
+        String value = interfaceAnnotation.value();
         if(StringUtils.isBlank(value)) {
             return;
         }

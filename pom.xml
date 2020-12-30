@@ -30,6 +30,7 @@
         <module>order</module>
         <module>common</module>
         <module>account</module>
+        <module>algorithm</module>
     </modules>
 
     <dependencyManagement>
